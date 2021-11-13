@@ -3,5 +3,6 @@ jobs:
   test-job:
     runs-on: macos-11
     steps:
-      - run: echo hello
-      - run: sw_vers
+      - run: brew install node@16
+      - run: node --version
+      - run: npm --version
