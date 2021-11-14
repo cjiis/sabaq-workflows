@@ -15,6 +15,7 @@ jobs:
         with:
           repository: cjiis/sabaq
           token: ${{ secrets.GH_PAT }}
+          ref: ${{ github.event.inputs.ref }}
       - run: sudo gem install bundler -v 2.2.29
       - run: bundle install
         working-directory: android
