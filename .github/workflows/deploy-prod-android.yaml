@@ -15,7 +15,7 @@ jobs:
           ref: ${{ github.event.inputs.ref }}
       - uses: subosito/flutter-action@v1
         with:
-          flutter-version: "2.5.3"
+          flutter-version: "2.8.0"
       - run: sudo gem install bundler -v 2.2.31
       - run: bundle install
         working-directory: android
