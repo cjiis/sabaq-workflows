@@ -15,7 +15,7 @@ jobs:
           ref: ${{ github.event.inputs.ref }}
       - uses: subosito/flutter-action@v1
         with:
-          flutter-version: "2.8.1"
+          flutter-version: "2.10.2"
       - uses: actions/setup-node@v2
         with:
           node-version: "12"
