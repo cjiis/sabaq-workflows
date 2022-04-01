@@ -16,7 +16,6 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           flutter-version: "2.10.3"
-      - run: sudo gem install bundler -v 2.3.4
       - run: bundle install
         working-directory: android
       - run: |
