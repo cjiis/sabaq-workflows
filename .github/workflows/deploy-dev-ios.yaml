@@ -16,6 +16,7 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           flutter-version: "2.10.4"
+      - run: gem install bundler -v 2.3.10
       - run: bundle install
         working-directory: ios
       - run: flutter build ios --flavor dev --no-codesign
