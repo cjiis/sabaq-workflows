@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: "12"
           check-latest: true
-      - run: npm i -g firebase-tools
+      - run: npm i -g firebase-tools@10
       - run: flutter build web
       - run: firebase --token $FIREBASE_TOKEN -P prod deploy
         env:
