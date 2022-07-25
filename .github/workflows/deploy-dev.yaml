@@ -22,10 +22,10 @@ jobs:
           workflow: get-ui-build-environment
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ steps.get-ui-build-environment.flutterVersion }}
+          flutter-version: ${{ steps.get-ui-build-environment.outputs.flutterVersion }}
       - run: sudo gem install bundler -v $BUNDLER_VERSION
         env:
-          BUNDLER_VERSION: ${{ steps.get-ui-build-environment.bundlerVersion }}
+          BUNDLER_VERSION: ${{ steps.get-ui-build-environment.outputs.bundlerVersion }}
       - run: bundle install
         working-directory: android
       - run: |
@@ -61,10 +61,10 @@ jobs:
           workflow: get-ui-build-environment
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ steps.get-ui-build-environment.flutterVersion }}
+          flutter-version: ${{ steps.get-ui-build-environment.outputs.flutterVersion }}
       - run: gem install bundler -v $BUNDLER_VERSION
         env:
-          BUNDLER_VERSION: ${{ steps.get-ui-build-environment.bundlerVersion }}
+          BUNDLER_VERSION: ${{ steps.get-ui-build-environment.outputs.bundlerVersion }}
       - run: bundle install
         working-directory: ios
       - run: flutter build ios --flavor dev --no-codesign
@@ -95,7 +95,7 @@ jobs:
           workflow: get-ui-build-environment
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ steps.get-ui-build-environment.flutterVersion }}
+          flutter-version: ${{ steps.get-ui-build-environment.outputs.flutterVersion }}
       - uses: actions/setup-node@v2
         with:
           node-version: "12"
