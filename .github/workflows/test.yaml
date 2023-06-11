@@ -3,8 +3,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: brew --version
+      - run: gem install fastlane
+      - run: fastlane --version
   mac-test:
     runs-on: macos-latest
     steps:
-      - run: brew --version
+      - run: gem install fastlane
+      - run: fastlane --version
