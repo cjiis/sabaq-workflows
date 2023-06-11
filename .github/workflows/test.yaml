@@ -1,0 +1,10 @@
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: brew --version
+  mac-test:
+    runs-on: macos-latest
+    steps:
+      - run: brew --version
