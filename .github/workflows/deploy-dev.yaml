@@ -20,6 +20,10 @@ jobs:
         uses: ./sabaq-action
         with:
           workflow: get-ui-build-environment
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "adopt"
+          java-version: "17"
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ steps.get-ui-build-environment.outputs.flutterVersion }}
