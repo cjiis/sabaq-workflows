@@ -97,9 +97,9 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ steps.get-ui-build-environment.outputs.flutterVersion }}
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
-          node-version: "12"
+          node-version: "18"
           check-latest: true
       - run: npm i -g firebase-tools@13
       - run: dart run build_runner build
