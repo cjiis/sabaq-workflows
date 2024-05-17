@@ -37,7 +37,8 @@ jobs:
         env:
           GOOGLE_UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.GOOGLE_UPLOAD_KEYSTORE_PASSWORD }}
           GOOGLE_UPLOAD_KEYSTORE_BASE64: ${{ secrets.GOOGLE_UPLOAD_KEYSTORE_BASE64 }}
-      - run: flutter build apk --flavor dev
+      - run: dart run build_runner build
+      - run: flutter build apk --flavor dev --dart-define=USE_FIREBASE_EMULATOR=false
       - run: bundle exec fastlane devDeploy
         working-directory: android
         env:
@@ -67,7 +68,8 @@ jobs:
           BUNDLER_VERSION: ${{ steps.get-ui-build-environment.outputs.bundlerVersion }}
       - run: bundle install
         working-directory: ios
-      - run: flutter build ios --flavor dev --no-codesign
+      - run: dart run build_runner build
+      - run: flutter build ios --flavor dev --no-codesign --dart-define=USE_FIREBASE_EMULATOR=false
       - run: bundle exec fastlane devBuildDeploy
         working-directory: ios
         env:
@@ -100,8 +102,9 @@ jobs:
         with:
           node-version: "12"
           check-latest: true
-      - run: npm i -g firebase-tools@10
-      - run: flutter build web
+      - run: npm i -g firebase-tools@13
+      - run: dart run build_runner build
+      - run: flutter build web --dart-define=USE_FIREBASE_EMULATOR=false
       - run: firebase --token $FIREBASE_TOKEN -P dev deploy
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
