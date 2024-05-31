@@ -6,12 +6,12 @@ jobs:
   android:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: cjiis/sabaq
           token: ${{ secrets.GH_PAT }}
           ref: ${{ github.event.client_payload.ref }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: cjiis/sabaq-action
           token: ${{ secrets.GH_PAT }}
@@ -50,12 +50,12 @@ jobs:
   ios:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: cjiis/sabaq
           token: ${{ secrets.GH_PAT }}
           ref: ${{ github.event.client_payload.ref }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: cjiis/sabaq-action
           token: ${{ secrets.GH_PAT }}
@@ -85,12 +85,12 @@ jobs:
   web:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: cjiis/sabaq
           token: ${{ secrets.GH_PAT }}
           ref: ${{ github.event.client_payload.ref }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: cjiis/sabaq-action
           token: ${{ secrets.GH_PAT }}
