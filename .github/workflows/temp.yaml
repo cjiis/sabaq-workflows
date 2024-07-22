@@ -7,7 +7,7 @@ jobs:
         with:
           repository: cjiis/sabaq
           token: ${{ secrets.GH_PAT }}
-          ref: temp
+          ref: refs/heads/temp
       - uses: actions/checkout@v4
         with:
           repository: cjiis/sabaq-action
