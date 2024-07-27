@@ -11,27 +11,12 @@ jobs:
           repository: cjiis/sabaq
           token: ${{ secrets.GH_PAT }}
           ref: ${{ github.event.client_payload.ref }}
-      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-java
+      - uses: ./.github/actions/setup-flutter
+      - uses: ./.github/actions/setup-ruby
         with:
-          repository: cjiis/sabaq-action
-          token: ${{ secrets.GH_PAT }}
-          path: sabaq-action
-      - id: get-ui-build-environment
-        uses: ./sabaq-action
-        with:
-          workflow: get-ui-build-environment
-      - uses: actions/setup-java@v4
-        with:
-          distribution: "adopt"
-          java-version: "17"
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ steps.get-ui-build-environment.outputs.flutterVersion }}
-      - run: sudo gem install bundler -v $BUNDLER_VERSION
-        env:
-          BUNDLER_VERSION: ${{ steps.get-ui-build-environment.outputs.bundlerVersion }}
-      - run: bundle install
-        working-directory: android
+          working-directory: android
       - run: |
           echo "$GOOGLE_UPLOAD_KEYSTORE_BASE64" | base64 -d > $GITHUB_WORKSPACE/android/upload-keystore.jks &&
           echo "storePassword=$GOOGLE_UPLOAD_KEYSTORE_PASSWORD" >> $GITHUB_WORKSPACE/android/key.properties &&
@@ -55,23 +40,11 @@ jobs:
           repository: cjiis/sabaq
           token: ${{ secrets.GH_PAT }}
           ref: ${{ github.event.client_payload.ref }}
-      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-flutter
+      - uses: ./.github/actions/setup-ruby
         with:
-          repository: cjiis/sabaq-action
-          token: ${{ secrets.GH_PAT }}
-          path: sabaq-action
-      - id: get-ui-build-environment
-        uses: ./sabaq-action
-        with:
-          workflow: get-ui-build-environment
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ steps.get-ui-build-environment.outputs.flutterVersion }}
-      - run: gem install bundler -v $BUNDLER_VERSION
-        env:
-          BUNDLER_VERSION: ${{ steps.get-ui-build-environment.outputs.bundlerVersion }}
-      - run: bundle install
-        working-directory: ios
+          working-directory: ios
       - run: dart run build_runner build
       - run: flutter build ios --flavor dev --no-codesign --dart-define=USE_FIREBASE_EMULATOR=false
       - run: bundle exec fastlane devBuildDeploy
@@ -90,25 +63,10 @@ jobs:
           repository: cjiis/sabaq
           token: ${{ secrets.GH_PAT }}
           ref: ${{ github.event.client_payload.ref }}
-      - uses: actions/checkout@v4
-        with:
-          repository: cjiis/sabaq-action
-          token: ${{ secrets.GH_PAT }}
-          path: sabaq-action
-      - id: get-ui-build-environment
-        uses: ./sabaq-action
-        with:
-          workflow: get-ui-build-environment
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ steps.get-ui-build-environment.outputs.flutterVersion }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-          check-latest: true
-      - run: npm i -g firebase-tools@13
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-flutter
       - run: dart run build_runner build
       - run: flutter build web --dart-define=USE_FIREBASE_EMULATOR=false
-      - run: firebase --token $FIREBASE_TOKEN -P dev deploy
+      - run: npx firebase --token $FIREBASE_TOKEN -P dev deploy
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
