@@ -3,57 +3,57 @@ on:
     types:
       - deploy-prod-ui
 jobs:
-  android:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: cjiis/sabaq
-          token: ${{ secrets.GH_PAT }}
-          ref: ${{ github.event.client_payload.ref }}
-      - uses: ./.github/actions/setup-node
-      - uses: ./.github/actions/setup-java
-      - uses: ./.github/actions/setup-flutter
-      - uses: ./.github/actions/setup-ruby
-        with:
-          working-directory: android
-      - run: |
-          echo "$GOOGLE_UPLOAD_KEYSTORE_BASE64" | base64 -d > $GITHUB_WORKSPACE/android/upload-keystore.jks &&
-          echo "storePassword=$GOOGLE_UPLOAD_KEYSTORE_PASSWORD" >> $GITHUB_WORKSPACE/android/key.properties &&
-          echo "keyPassword=$GOOGLE_UPLOAD_KEYSTORE_PASSWORD" >> $GITHUB_WORKSPACE/android/key.properties &&
-          echo "keyAlias=upload" >> $GITHUB_WORKSPACE/android/key.properties &&
-          echo "storeFile=$GITHUB_WORKSPACE/android/upload-keystore.jks" >> $GITHUB_WORKSPACE/android/key.properties
-        env:
-          GOOGLE_UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.GOOGLE_UPLOAD_KEYSTORE_PASSWORD }}
-          GOOGLE_UPLOAD_KEYSTORE_BASE64: ${{ secrets.GOOGLE_UPLOAD_KEYSTORE_BASE64 }}
-      - run: dart run build_runner build
-      - run: flutter build appbundle --flavor prod --dart-define=USE_FIREBASE_EMULATOR=false
-      - run: bundle exec fastlane prodDeploy
-        working-directory: android
-        env:
-          GOOGLE_PLAY_API_KEY: ${{ secrets.GOOGLE_PLAY_API_KEY }}
-  ios:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: cjiis/sabaq
-          token: ${{ secrets.GH_PAT }}
-          ref: ${{ github.event.client_payload.ref }}
-      - uses: ./.github/actions/setup-node
-      - uses: ./.github/actions/setup-flutter
-      - uses: ./.github/actions/setup-ruby
-        with:
-          working-directory: ios
-      - run: dart run build_runner build
-      - run: flutter build ios --flavor prod --no-codesign --dart-define=USE_FIREBASE_EMULATOR=false
-      - run: bundle exec fastlane prodBuildDeploy
-        working-directory: ios
-        env:
-          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
-          FASTLANE_MATCH_GIT_KEY: ${{ secrets.FASTLANE_MATCH_GIT_KEY }}
-          FASTLANE_MATCH_GIT_PASSWORD: ${{ secrets.FASTLANE_MATCH_GIT_PASSWORD }}
-          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+  # android:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         repository: cjiis/sabaq
+  #         token: ${{ secrets.GH_PAT }}
+  #         ref: ${{ github.event.client_payload.ref }}
+  #     - uses: ./.github/actions/setup-node
+  #     - uses: ./.github/actions/setup-java
+  #     - uses: ./.github/actions/setup-flutter
+  #     - uses: ./.github/actions/setup-ruby
+  #       with:
+  #         working-directory: android
+  #     - run: |
+  #         echo "$GOOGLE_UPLOAD_KEYSTORE_BASE64" | base64 -d > $GITHUB_WORKSPACE/android/upload-keystore.jks &&
+  #         echo "storePassword=$GOOGLE_UPLOAD_KEYSTORE_PASSWORD" >> $GITHUB_WORKSPACE/android/key.properties &&
+  #         echo "keyPassword=$GOOGLE_UPLOAD_KEYSTORE_PASSWORD" >> $GITHUB_WORKSPACE/android/key.properties &&
+  #         echo "keyAlias=upload" >> $GITHUB_WORKSPACE/android/key.properties &&
+  #         echo "storeFile=$GITHUB_WORKSPACE/android/upload-keystore.jks" >> $GITHUB_WORKSPACE/android/key.properties
+  #       env:
+  #         GOOGLE_UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.GOOGLE_UPLOAD_KEYSTORE_PASSWORD }}
+  #         GOOGLE_UPLOAD_KEYSTORE_BASE64: ${{ secrets.GOOGLE_UPLOAD_KEYSTORE_BASE64 }}
+  #     - run: dart run build_runner build
+  #     - run: flutter build appbundle --flavor prod --dart-define=USE_FIREBASE_EMULATOR=false
+  #     - run: bundle exec fastlane prodDeploy
+  #       working-directory: android
+  #       env:
+  #         GOOGLE_PLAY_API_KEY: ${{ secrets.GOOGLE_PLAY_API_KEY }}
+  # ios:
+  #   runs-on: macos-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         repository: cjiis/sabaq
+  #         token: ${{ secrets.GH_PAT }}
+  #         ref: ${{ github.event.client_payload.ref }}
+  #     - uses: ./.github/actions/setup-node
+  #     - uses: ./.github/actions/setup-flutter
+  #     - uses: ./.github/actions/setup-ruby
+  #       with:
+  #         working-directory: ios
+  #     - run: dart run build_runner build
+  #     - run: flutter build ios --flavor prod --no-codesign --dart-define=USE_FIREBASE_EMULATOR=false
+  #     - run: bundle exec fastlane prodBuildDeploy
+  #       working-directory: ios
+  #       env:
+  #         APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+  #         FASTLANE_MATCH_GIT_KEY: ${{ secrets.FASTLANE_MATCH_GIT_KEY }}
+  #         FASTLANE_MATCH_GIT_PASSWORD: ${{ secrets.FASTLANE_MATCH_GIT_PASSWORD }}
+  #         FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
   web:
     runs-on: ubuntu-latest
     steps:
