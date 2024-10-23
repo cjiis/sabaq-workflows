@@ -66,6 +66,6 @@ jobs:
       - uses: ./.github/actions/setup-flutter
       - run: dart run build_runner build
       - run: flutter build web --dart-define=USE_FIREBASE_EMULATOR=false
-      - run: firebase --token $FIREBASE_TOKEN -P prod deploy --only hosting:app
+      - run: npx firebase --token $FIREBASE_TOKEN -P prod deploy --only hosting:app
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
