@@ -18,6 +18,6 @@ jobs:
       - uses: ./.github/actions/setup-eas
       - uses: ./.github/actions/setup-fastlane
       - uses: ./.github/actions/scripts
-        with:
+        env:
           action: deploy-ui
           expoToken: ${{ secrets.EXPO_TOKEN }}
