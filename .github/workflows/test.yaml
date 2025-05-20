@@ -21,3 +21,4 @@ jobs:
         env:
           action: deploy-ui
           expoToken: ${{ secrets.EXPO_TOKEN }}
+          appleApiKey: ${{ secrets.APPLE_API_KEY }}
