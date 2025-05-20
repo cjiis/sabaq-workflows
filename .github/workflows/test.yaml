@@ -18,9 +18,9 @@ jobs:
       - uses: ./.github/actions/setup-fastlane
       - run: npm install
         working-directory: expo
-      # - run: npx eas login
-      #   working-directory: expo
-      #   env:
-      #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - run: npx eas login
+        working-directory: expo
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       - run: npx eas build --profile production --platform ios --non-interactive --local
         working-directory: expo
