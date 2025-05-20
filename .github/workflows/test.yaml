@@ -15,14 +15,9 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           ref: ${{ github.event.client_payload.ref }}
       - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-eas
       - uses: ./.github/actions/setup-fastlane
-      - run: npm install
-        working-directory: expo
-      # - run: npx eas login
-      #   working-directory: expo
-      #   env:
-      #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      - run: npx eas build --profile preview --platform ios --non-interactive --local
-        working-directory: expo
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - uses: ./.github/actions/scripts
+        with:
+          action: deploy-ui
+          expoToken: ${{ secrets.EXPO_TOKEN }}
