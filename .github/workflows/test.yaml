@@ -1,0 +1,26 @@
+on:
+  repository_dispatch:
+    types:
+      - deploy-ui
+jobs:
+  deploy-ui:
+    runs-on: macos-latest
+    steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: actions/checkout@v4
+        with:
+          repository: cjiis/sabaq
+          token: ${{ secrets.GH_PAT }}
+          ref: ${{ github.event.client_payload.ref }}
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-fastlane
+      - run: npm install
+        working-directory: expo
+      # - run: npx eas login
+      #   working-directory: expo
+      #   env:
+      #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - run: npx eas build --profile production --platform ios --non-interactive --local
+        working-directory: expo
