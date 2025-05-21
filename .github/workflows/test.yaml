@@ -22,3 +22,4 @@ jobs:
         env:
           action: deploy-ui
           expoToken: ${{ secrets.EXPO_TOKEN }}
+          firebaseToken: ${{ secrets.FIREBASE_TOKEN }}
