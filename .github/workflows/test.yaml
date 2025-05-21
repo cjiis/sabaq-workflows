@@ -17,6 +17,7 @@ jobs:
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/setup-eas
       - uses: ./.github/actions/setup-fastlane
+      - uses: ./.github/actions/setup-firebase
       - uses: ./.github/actions/scripts
         env:
           action: deploy-ui
