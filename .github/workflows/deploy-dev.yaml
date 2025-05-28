@@ -64,6 +64,7 @@ jobs:
           ref: ${{ github.event.client_payload.ref }}
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/setup-flutter
+      - uses: ./.github/actions/setup-firebase
       - run: dart run build_runner build
       - run: flutter build web --dart-define=USE_FIREBASE_EMULATOR=false
       - run: npx firebase --token $FIREBASE_TOKEN -P dev deploy --only hosting:app
