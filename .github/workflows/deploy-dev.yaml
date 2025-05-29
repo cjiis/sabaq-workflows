@@ -34,34 +34,34 @@ jobs:
         working-directory: android
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-  # ios:
-  #   runs-on: macos-latest
-  #   steps:
-  #     - uses: maxim-lobanov/setup-xcode@v1
-  #       with:
-  #         xcode-version: latest-stable
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         repository: cjiis/sabaq
-  #         token: ${{ secrets.GH_PAT }}
-  #         ref: ${{ github.event.client_payload.ref }}
-  #     - uses: ./.github/actions/setup-node
-  #     - uses: ./.github/actions/setup-flutter
-  #     - uses: ruby/setup-ruby@v1
-  #       with:
-  #         ruby-version: "3.3.7"
-  #         bundler-cache: true
-  #         working-directory: ios
-  #     - run: dart run build_runner build
-  #     - run: flutter build ios --flavor dev --no-codesign --dart-define=USE_FIREBASE_EMULATOR=false
-  #     - run: bundle exec fastlane devBuildDeploy
-  #       working-directory: ios
-  #       env:
-  #         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-  #         APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
-  #         FASTLANE_MATCH_GIT_KEY: ${{ secrets.FASTLANE_MATCH_GIT_KEY }}
-  #         FASTLANE_MATCH_GIT_PASSWORD: ${{ secrets.FASTLANE_MATCH_GIT_PASSWORD }}
-  #         FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: actions/checkout@v4
+        with:
+          repository: cjiis/sabaq
+          token: ${{ secrets.GH_PAT }}
+          ref: ${{ github.event.client_payload.ref }}
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-flutter
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3.7"
+          bundler-cache: true
+          working-directory: ios
+      - run: dart run build_runner build
+      - run: flutter build ios --flavor dev --no-codesign --dart-define=USE_FIREBASE_EMULATOR=false
+      - run: bundle exec fastlane devBuildDeploy
+        working-directory: ios
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          FASTLANE_MATCH_GIT_KEY: ${{ secrets.FASTLANE_MATCH_GIT_KEY }}
+          FASTLANE_MATCH_GIT_PASSWORD: ${{ secrets.FASTLANE_MATCH_GIT_PASSWORD }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
   web:
     runs-on: ubuntu-latest
     steps:
