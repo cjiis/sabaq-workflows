@@ -7,8 +7,9 @@ jobs:
     strategy:
       matrix:
         platform:
-          - ios
-          - android
+          # - ios
+          # - android
+          - web
     runs-on: ${{ matrix.platform == 'ios' && 'macos-latest' || 'ubuntu-latest' }}
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
