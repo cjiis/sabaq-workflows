@@ -22,11 +22,8 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           ref: ${{ github.event.client_payload.ref }}
       - uses: ./.github/actions/setup-node
-      - uses: ./.github/actions/setup-eas
-        if: ${{ matrix.platform != 'web' }}
       - uses: ./.github/actions/setup-fastlane
         if: ${{ matrix.platform == 'ios' }}
-      - uses: ./.github/actions/setup-firebase
       - uses: ./.github/actions/scripts
         env:
           action: deploy-ui
