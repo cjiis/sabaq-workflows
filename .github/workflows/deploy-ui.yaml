@@ -7,9 +7,9 @@ jobs:
     strategy:
       matrix:
         platform:
-          - ios
+          # - ios
           - android
-          - web
+          # - web
     runs-on: ${{ matrix.platform == 'ios' && 'macos-latest' || 'ubuntu-latest' }}
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
@@ -30,3 +30,4 @@ jobs:
           platform: ${{ matrix.platform }}
           expoToken: ${{ secrets.EXPO_TOKEN }}
           firebaseToken: ${{ secrets.FIREBASE_TOKEN }}
+          googlePlayApiKey: ${{ matrix.platform == 'android' && secrets.GOOGLE_PLAY_API_KEY }}
