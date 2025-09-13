@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         platform:
-          # - ios
+          - ios
           - android
           # - web
     runs-on: ${{ matrix.platform == 'ios' && 'macos-latest' || 'ubuntu-latest' }}
@@ -31,3 +31,4 @@ jobs:
           expoToken: ${{ secrets.EXPO_TOKEN }}
           firebaseToken: ${{ secrets.FIREBASE_TOKEN }}
           googlePlayApiKey: ${{ matrix.platform == 'android' && secrets.GOOGLE_PLAY_API_KEY }}
+          appleApiKey: ${{ matrix.platform == 'ios' && secrets.APPLE_API_KEY }}
