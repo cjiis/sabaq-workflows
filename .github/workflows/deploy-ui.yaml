@@ -28,5 +28,5 @@ jobs:
         env:
           action: deploy-ui
           platform: ${{ matrix.platform }}
-          expoToken: ${{ secrets.EXPO_TOKEN }}
+          expoToken: ${{ (matrix.platform == 'ios' || matrix.platform == 'android') && secrets.EXPO_TOKEN }}
           firebaseToken: ${{ matrix.platform == 'web' && secrets.FIREBASE_TOKEN }}
