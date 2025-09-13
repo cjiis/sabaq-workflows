@@ -23,12 +23,10 @@ jobs:
           ref: ${{ github.event.client_payload.ref }}
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/setup-fastlane
-        if: ${{ matrix.platform == 'ios' || matrix.platform == 'android' }}
+        if: ${{ matrix.platform == 'ios' }}
       - uses: ./.github/actions/scripts
         env:
           action: deploy-ui
           platform: ${{ matrix.platform }}
           expoToken: ${{ secrets.EXPO_TOKEN }}
-          firebaseToken: ${{ secrets.FIREBASE_TOKEN }}
-          googlePlayApiKey: ${{ matrix.platform == 'android' && secrets.GOOGLE_PLAY_API_KEY }}
-          appleApiKey: ${{ matrix.platform == 'ios' && secrets.APPLE_API_KEY }}
+          firebaseToken: ${{ matrix.platform == 'web' && secrets.FIREBASE_TOKEN }}
