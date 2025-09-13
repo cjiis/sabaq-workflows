@@ -9,7 +9,7 @@ jobs:
         platform:
           - ios
           - android
-          # - web
+          - web
     runs-on: ${{ matrix.platform == 'ios' && 'macos-latest' || 'ubuntu-latest' }}
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
