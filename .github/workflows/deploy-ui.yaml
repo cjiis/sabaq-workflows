@@ -23,7 +23,7 @@ jobs:
           ref: ${{ github.event.client_payload.ref }}
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/setup-fastlane
-        if: ${{ matrix.platform == 'ios' }}
+        if: ${{ matrix.platform == 'ios' || matrix.platform == 'android' }}
       - uses: ./.github/actions/scripts
         env:
           action: deploy-ui
