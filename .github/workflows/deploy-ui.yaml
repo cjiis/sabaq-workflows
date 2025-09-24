@@ -30,3 +30,4 @@ jobs:
           platform: ${{ matrix.platform }}
           expoToken: ${{ (matrix.platform == 'ios' || matrix.platform == 'android') && secrets.EXPO_TOKEN }}
           firebaseToken: ${{ matrix.platform == 'web' && secrets.FIREBASE_TOKEN }}
+          environment: ${{ github.event.client_payload.environment }}
