@@ -16,6 +16,8 @@ jobs:
         if: ${{ matrix.platform == 'ios' }}
         with:
           xcode-version: latest-stable
+      - run: xcodebuild -downloadPlatform iOS
+        if: ${{ matrix.platform == 'ios' }}
       - uses: actions/checkout@v4
         with:
           repository: cjiis/sabaq
