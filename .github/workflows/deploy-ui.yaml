@@ -1,4 +1,4 @@
-run-name: Deploy UI (${{ github.event.client_payload.environment }})
+run-name: Deploy UI (${{ github.event.client_payload.environment }}) (${{ github.event.client_payload.ref }})
 on:
   repository_dispatch:
     types:
