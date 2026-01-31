@@ -19,7 +19,7 @@ jobs:
           xcode-version: latest-stable
       - run: xcodebuild -downloadPlatform iOS
         if: ${{ matrix.platform == 'ios' }}
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: cjiis/sabaq
           token: ${{ secrets.GH_PAT }}
