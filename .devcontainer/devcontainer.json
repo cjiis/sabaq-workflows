@@ -1,0 +1,14 @@
+{
+  "name": "Sabaq Workflows",
+  "image": "mcr.microsoft.com/devcontainers/base:noble",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "streetsidesoftware.code-spell-checker",
+        "github.vscode-github-actions",
+        "eamodio.gitlens",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}
