@@ -5,6 +5,10 @@ on:
       - deploy-ui
   workflow_dispatch:
     inputs:
+      sabaq-ref:
+        description: "Sabaq repo ref (branch, tag, etc.)"
+        required: true
+        default: "master"
       app-build-number:
         description: "App build number (e.g., 100)"
         required: true
@@ -12,17 +16,14 @@ jobs:
   deploy-ui:
     strategy:
       matrix:
-        platform:
-          - ios
-          - android
-          - web
+        platform: ${{ github.event_name == 'workflow_dispatch' && fromJSON('["ios"]') || fromJSON('["ios", "android", "web"]') }}
     runs-on: ${{ matrix.platform == 'ios' && 'macos-26' || 'ubuntu-24.04' }}
     steps:
       - uses: actions/checkout@v6
         with:
           repository: cjiis/sabaq
           token: ${{ secrets.GH_PAT }}
-          ref: ${{ github.event.client_payload.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.sabaq-ref || github.event.client_payload.ref }}
       - uses: ./.github/actions/setup-xcode
         if: ${{ matrix.platform == 'ios' }}
       - uses: ./.github/actions/setup-node
