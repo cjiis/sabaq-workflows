@@ -1,13 +1,10 @@
-run-name: Deploy UI (${{ github.event_name == 'workflow_dispatch' && 'local' || github.event.client_payload.environment }}) (${{ github.event_name == 'workflow_dispatch' && github.event.inputs.app-version || github.event.client_payload.ref }})
+run-name: Deploy UI (${{ github.event_name == 'workflow_dispatch' && 'local' || github.event.client_payload.environment }}) (${{ github.event_name == 'workflow_dispatch' && github.event.inputs.app-build-number || github.event.client_payload.ref }})
 on:
   repository_dispatch:
     types:
       - deploy-ui
   workflow_dispatch:
     inputs:
-      app-version:
-        description: "App version to deploy (e.g., 1.0.0)"
-        required: true
       app-build-number:
         description: "App build number (e.g., 100)"
         required: true
@@ -36,5 +33,4 @@ jobs:
           expoToken: ${{ (matrix.platform == 'ios' || matrix.platform == 'android') && secrets.EXPO_TOKEN }}
           firebaseToken: ${{ matrix.platform == 'web' && secrets.FIREBASE_TOKEN }}
           environment: ${{ github.event_name == 'workflow_dispatch' && 'local' || github.event.client_payload.environment }}
-          appVersion: ${{ github.event.inputs.app-version }}
           appBuildNumber: ${{ github.event.inputs.app-build-number }}
