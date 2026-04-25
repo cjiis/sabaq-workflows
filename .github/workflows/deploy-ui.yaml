@@ -12,6 +12,9 @@ on:
       app-build-number:
         description: "App build number (e.g., 100)"
         required: true
+      development-server-host:
+        description: "Development server host (e.g., localhost, staging.example.com)"
+        required: false
 jobs:
   deploy-ui:
     strategy:
@@ -35,3 +38,4 @@ jobs:
           firebaseToken: ${{ (matrix.platform == 'web' || github.event_name == 'workflow_dispatch') && secrets.FIREBASE_TOKEN }}
           environment: ${{ github.event_name == 'workflow_dispatch' && 'local' || github.event.client_payload.environment }}
           appBuildNumber: ${{ github.event.inputs.app-build-number }}
+          developmentServerHost: ${{ github.event.inputs.development-server-host }}
