@@ -19,7 +19,7 @@ jobs:
   deploy-ui:
     strategy:
       matrix:
-        platform: ${{ github.event_name == 'workflow_dispatch' && fromJSON('["ios", "android"]') || fromJSON('["ios", "android", "web"]') }}
+        platform: ${{ github.event_name == 'workflow_dispatch' && fromJSON('["ios"]') || fromJSON('["ios", "android", "web"]') }}
     runs-on: ${{ matrix.platform == 'ios' && 'macos-26' || 'ubuntu-24.04' }}
     steps:
       - uses: actions/checkout@v6
