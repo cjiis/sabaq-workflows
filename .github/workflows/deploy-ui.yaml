@@ -1,8 +1,10 @@
-run-name: Deploy UI (${{ github.event_name == 'workflow_dispatch' && 'local' || github.event.client_payload.environment }}) (${{ github.event_name == 'workflow_dispatch' && github.event.inputs.app-build-number || github.event.client_payload.ref }})
+run-name: Deploy UI (${{github.event_name == 'workflow_dispatch' && 'local' || github.event.client_payload.environment}}) (${{github.event_name == 'workflow_dispatch' && github.event.inputs.app-build-number || github.event.client_payload.ref}})
+
 on:
   repository_dispatch:
     types:
       - deploy-ui
+
   workflow_dispatch:
     inputs:
       sabaq-ref:
@@ -15,27 +17,52 @@ on:
       development-server-host:
         description: "Development server host (e.g., localhost, staging.example.com)"
         required: false
+
+env:
+  SABAQ_ENV: ${{github.event_name == 'workflow_dispatch' && 'local' || github.event.client_payload.environment}}
+  SABAQ_REF: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.sabaq-ref || github.event.client_payload.ref}}
+
 jobs:
   deploy-ui:
     strategy:
       matrix:
-        platform: ${{ github.event_name == 'workflow_dispatch' && fromJSON('["ios"]') || fromJSON('["ios", "android", "web"]') }}
+        platform: ${{github.event_name == 'workflow_dispatch' && fromJson('["ios", "android"]') || fromJson('["ios", "android", "web"]')}}
+
     runs-on: ${{ matrix.platform == 'ios' && 'macos-26' || 'ubuntu-24.04' }}
+
+    env:
+      MOBILE_BUILD_PATH: /tmp/sabaq.${{matrix.platform == 'ios' && 'ipa' || (github.event_name == 'workflow_dispatch' && 'apk' || 'aab')}}
+
     steps:
       - uses: actions/checkout@v6
         with:
           repository: cjiis/sabaq
-          token: ${{ secrets.GH_PAT }}
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.sabaq-ref || github.event.client_payload.ref }}
-      - uses: ./.github/actions/setup-xcode
-        if: ${{ matrix.platform == 'ios' }}
+          token: ${{secrets.GH_PAT}}
+          ref: ${{env.SABAQ_REF}}
+
+      - if: ${{matrix.platform == 'ios'}}
+        uses: ./.github/actions/setup-xcode
+      - if: ${{matrix.platform == 'android'}}
+        uses: ./.github/actions/setup-java
       - uses: ./.github/actions/setup-node
-      - uses: ./.github/actions/scripts
+
+      - run: npm ci
+
+      - if: ${{matrix.platform == 'web'}}
+        run: npm run expo export -- --platform web
         env:
-          action: deploy-ui
-          platform: ${{ matrix.platform }}
-          expoToken: ${{ (matrix.platform == 'ios' || matrix.platform == 'android') && secrets.EXPO_TOKEN }}
-          firebaseToken: ${{ (matrix.platform == 'web' || github.event_name == 'workflow_dispatch') && secrets.FIREBASE_TOKEN }}
-          environment: ${{ github.event_name == 'workflow_dispatch' && 'local' || github.event.client_payload.environment }}
-          appBuildNumber: ${{ github.event.inputs.app-build-number }}
-          developmentServerHost: ${{ github.event.inputs.development-server-host }}
+          EXPO_PUBLIC_DO_NOT_USE_FIREBASE_EMULATORS: "true"
+          EXPO_PUBLIC_TRPC_ENDPOINT: ${{env.SABAQ_ENV == 'prod' && 'https://apiv2-3yoyqfllna-uc.a.run.app/trpc' || 'https://apiv2-drlhhmghsa-uc.a.run.app/trpc'}}
+          EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{env.SABAQ_ENV == 'prod' && 'pk_live_51QBmL3Bi17HmM2BuKrxBF90aW2AjrN7fVukBRKpH5P7tEJUDjtUaj8kL3zWEXn2lnPnKbu5z8zAn1f5UmG4VJpWf00Gbz2quPA' || 'pk_test_51QBmL3Bi17HmM2BuzGCSGA4KVJxhqt8y9dPTij7tEauokrE4GA88cxpYIP65CwxlljIhqW8fm4Drq7Y3JYIGNML100njJBTv0z'}}
+          EXPO_PUBLIC_SABAQ_ENV: ${{env.SABAQ_ENV}}
+      - if: ${{matrix.platform == 'web'}}
+        run: npm run firebase -- deploy --only hosting:app --project ${{env.SABAQ_ENV}} --token ${{secrets.FIREBASE_TOKEN}}
+
+      - if: ${{matrix.platform == 'ios' || matrix.platform == 'android'}}
+        run: npm run build -- --non-interactive --output ${{env.MOBILE_BUILD_PATH}} --platform ${{matrix.platform}} --profile ${{env.SABAQ_ENV}}
+        env:
+          EXPO_TOKEN: ${{secrets.EXPO_TOKEN}}
+      - if: ${{matrix.platform == 'ios' || matrix.platform == 'android'}}
+        run: npm run eas -- submit --non-interactive --path ${{env.MOBILE_BUILD_PATH}} --platform ${{matrix.platform}} --profile ${{env.SABAQ_ENV}}
+        env:
+          EXPO_TOKEN: ${{secrets.EXPO_TOKEN}}
