@@ -1,3 +1,4 @@
+name: Deploy UI
 run-name: Deploy UI (${{github.event_name == 'workflow_dispatch' && 'local' || github.event.client_payload.environment}}) (${{github.event_name == 'workflow_dispatch' && github.event.inputs.app-build-number || github.event.client_payload.ref}})
 
 on:
