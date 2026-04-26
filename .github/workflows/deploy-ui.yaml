@@ -64,6 +64,8 @@ jobs:
         env:
           EXPO_TOKEN: ${{secrets.EXPO_TOKEN}}
           EXPO_PUBLIC_FIREBASE_EMULATORS_HOST: ${{github.event.inputs.development-server-host}}
+          APP_BUILD_NUMBER: $${{github.event.inputs.app-build-number}}
+          DEVELOPMENT_SERVER_HOST: ${{github.event.inputs.development-server-host}}
       - if: ${{matrix.platform == 'ios' || matrix.platform == 'android'}}
         run: npm run eas -- submit --non-interactive --path ${{env.MOBILE_BUILD_PATH}} --platform ${{matrix.platform}} --profile ${{env.SABAQ_ENV}}
         env:
