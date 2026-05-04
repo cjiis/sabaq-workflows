@@ -141,17 +141,19 @@ jobs:
 
   deploy-ios:
     needs: build-ios
-    runs-on: *macos
+    runs-on: *ubuntu
     env:
       ARTIFACT_PATH: *ios-build-path
       PLATFORM: *ios-platform
     steps:
       - *checkout-sabaq
+      - *setup-node
+      - *install-dependencies
       - *download-artifact
       - *deploy-mobile
 
   deploy-android:
-    if: ${{github.event_name == 'repository_dispatch'}}
+    # if: ${{github.event_name == 'repository_dispatch'}}
     needs: build-android
     runs-on: *ubuntu
     env:
@@ -159,5 +161,7 @@ jobs:
       PLATFORM: *android-platform
     steps:
       - *checkout-sabaq
+      - *setup-node
+      - *install-dependencies
       - *download-artifact
       - *deploy-mobile
