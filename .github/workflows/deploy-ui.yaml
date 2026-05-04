@@ -24,48 +24,140 @@ env:
   SABAQ_REF: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.sabaq-ref || github.event.client_payload.ref}}
 
 jobs:
-  deploy-ui:
-    strategy:
-      matrix:
-        platform: ${{github.event_name == 'workflow_dispatch' && fromJson('["ios", "android"]') || fromJson('["ios", "android", "web"]')}}
-
-    runs-on: ${{ matrix.platform == 'ios' && 'macos-26' || 'ubuntu-24.04' }}
-
+  template:
+    if: false
+    runs-on:
+      - &ubuntu ubuntu-24.04
+      - &macos macos-26
+      - &ios-platform ios
+      - &android-platform android
+      - &ios-build-path /tmp/sabaq.ipa
+      - &android-build-path ${{github.event_name == 'workflow_dispatch' && '/tmp/sabaq.apk' || '/tmp/sabaq.aab'}}
     env:
-      MOBILE_BUILD_PATH: /tmp/sabaq.${{matrix.platform == 'ios' && 'ipa' || (github.event_name == 'workflow_dispatch' && 'apk' || 'aab')}}
-
+      ARTIFACT_PATH: ""
+      PLATFORM: ""
     steps:
-      - uses: actions/checkout@v6
+      - &checkout-sabaq
+        uses: actions/checkout@v6
         with:
           repository: cjiis/sabaq
           token: ${{secrets.GH_PAT}}
           ref: ${{env.SABAQ_REF}}
 
-      - if: ${{matrix.platform == 'ios'}}
-        uses: ./.github/actions/setup-xcode
-      - if: ${{matrix.platform == 'android'}}
-        uses: ./.github/actions/setup-java
-      - uses: ./.github/actions/setup-node
+      - &setup-node
+        uses: ./.github/actions/setup-node
 
-      - run: npm ci
+      - &install-dependencies
+        run: npm ci
 
-      - if: ${{matrix.platform == 'web'}}
+      - &build-web
         run: npm run expo export -- --platform web
         env:
           EXPO_PUBLIC_DO_NOT_USE_FIREBASE_EMULATORS: "true"
           EXPO_PUBLIC_TRPC_ENDPOINT: ${{env.SABAQ_ENV == 'prod' && 'https://apiv2-3yoyqfllna-uc.a.run.app/trpc' || 'https://apiv2-drlhhmghsa-uc.a.run.app/trpc'}}
           EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{env.SABAQ_ENV == 'prod' && 'pk_live_51QBmL3Bi17HmM2BuKrxBF90aW2AjrN7fVukBRKpH5P7tEJUDjtUaj8kL3zWEXn2lnPnKbu5z8zAn1f5UmG4VJpWf00Gbz2quPA' || 'pk_test_51QBmL3Bi17HmM2BuzGCSGA4KVJxhqt8y9dPTij7tEauokrE4GA88cxpYIP65CwxlljIhqW8fm4Drq7Y3JYIGNML100njJBTv0z'}}
           EXPO_PUBLIC_SABAQ_ENV: ${{env.SABAQ_ENV}}
-      - if: ${{matrix.platform == 'web'}}
+
+      - &deploy-web
         run: npm run firebase -- deploy --only hosting:app --project ${{env.SABAQ_ENV}} --token ${{secrets.FIREBASE_TOKEN}}
 
-      - if: ${{matrix.platform == 'ios' || matrix.platform == 'android'}}
-        run: npm run build -- --non-interactive --output ${{env.MOBILE_BUILD_PATH}} --platform ${{matrix.platform}} --profile ${{env.SABAQ_ENV}}
+      - &setup-xcode
+        uses: ./.github/actions/setup-xcode
+
+      - &setup-java
+        uses: ./.github/actions/setup-java
+
+      - &build-mobile
+        # env:
+        #   ARTIFACT_PATH
+        #   PLATFORM
+        run: npm run build -- --non-interactive --output ${{env.ARTIFACT_PATH}} --platform ${{env.PLATFORM}} --profile ${{env.SABAQ_ENV}}
         env:
           EXPO_TOKEN: ${{secrets.EXPO_TOKEN}}
           APP_BUILD_NUMBER: ${{github.event.inputs.app-build-number}}
           DEVELOPMENT_SERVER_HOST: ${{github.event.inputs.development-server-host}}
-      - if: ${{matrix.platform == 'ios' || matrix.platform == 'android'}}
-        run: npm run eas -- submit --non-interactive --path ${{env.MOBILE_BUILD_PATH}} --platform ${{matrix.platform}} --profile ${{env.SABAQ_ENV}}
+
+      - &upload-artifact
+        # env:
+        #   ARTIFACT_PATH
+        #   PLATFORM
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{env.PLATFORM}}
+          path: ${{env.ARTIFACT_PATH}}
+
+      - &download-artifact
+        # env:
+        #   ARTIFACT_PATH
+        #   PLATFORM
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{env.PLATFORM}}
+          path: ${{env.ARTIFACT_PATH}}
+
+      - &deploy-mobile
+        # env:
+        #   ARTIFACT_PATH
+        #   PLATFORM
+        run: npm run eas -- submit --non-interactive --path ${{env.ARTIFACT_PATH}} --platform ${{env.PLATFORM}} --profile ${{env.SABAQ_ENV}}
         env:
           EXPO_TOKEN: ${{secrets.EXPO_TOKEN}}
+
+  build-and-deploy-web:
+    if: ${{github.event_name == 'repository_dispatch'}}
+    runs-on: *ubuntu
+    steps:
+      - *checkout-sabaq
+      - *setup-node
+      - *install-dependencies
+      - *build-web
+      - *deploy-web
+
+  build-ios:
+    runs-on: *macos
+    env:
+      ARTIFACT_PATH: *ios-build-path
+      PLATFORM: *ios-platform
+    steps:
+      - *checkout-sabaq
+      - *setup-xcode
+      - *setup-node
+      - *install-dependencies
+      - *build-mobile
+      - *upload-artifact
+
+  build-android:
+    runs-on: *ubuntu
+    env:
+      ARTIFACT_PATH: *android-build-path
+      PLATFORM: *android-platform
+    steps:
+      - *checkout-sabaq
+      - *setup-java
+      - *setup-node
+      - *install-dependencies
+      - *build-mobile
+      - *upload-artifact
+
+  deploy-ios:
+    needs: build-ios
+    runs-on: *macos
+    env:
+      ARTIFACT_PATH: *ios-build-path
+      PLATFORM: *ios-platform
+    steps:
+      - *checkout-sabaq
+      - *download-artifact
+      - *deploy-mobile
+
+  deploy-android:
+    if: ${{github.event_name == 'repository_dispatch'}}
+    needs: build-android
+    runs-on: *ubuntu
+    env:
+      ARTIFACT_PATH: *android-build-path
+      PLATFORM: *android-platform
+    steps:
+      - *checkout-sabaq
+      - *download-artifact
+      - *deploy-mobile
