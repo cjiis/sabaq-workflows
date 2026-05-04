@@ -31,6 +31,7 @@ jobs:
       - &macos macos-26
       - &ios-platform ios
       - &android-platform android
+      - &build-directory /tmp
       - &ios-build-path /tmp/sabaq.ipa
       - &android-build-path ${{github.event_name == 'workflow_dispatch' && '/tmp/sabaq.apk' || '/tmp/sabaq.aab'}}
     env:
@@ -88,12 +89,11 @@ jobs:
 
       - &download-artifact
         # env:
-        #   ARTIFACT_PATH
         #   PLATFORM
         uses: actions/download-artifact@v8
         with:
           name: ${{env.PLATFORM}}
-          path: ${{env.ARTIFACT_PATH}}
+          path: *build-directory
 
       - &deploy-mobile
         # env:
