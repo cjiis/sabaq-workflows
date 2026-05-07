@@ -1,0 +1,15 @@
+name: Checkout Sabaq
+description: Checkout Sabaq
+inputs:
+  token:
+    description: token
+  ref:
+    description: ref
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v6
+      with:
+        repository: cjiis/sabaq
+        token: ${{inputs.token}}
+        ref: ${{inputs.ref}}

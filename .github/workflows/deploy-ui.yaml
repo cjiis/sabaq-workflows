@@ -39,14 +39,13 @@ jobs:
       PLATFORM: ""
     steps:
       - &checkout-sabaq
-        uses: actions/checkout@v6
+        uses: cjiis/sabaq-workflows/actions/checkout-sabaq@main
         with:
-          repository: cjiis/sabaq
           token: ${{secrets.GH_PAT}}
           ref: ${{env.SABAQ_REF}}
 
       - &setup-node
-        uses: ./.github/actions/setup-node
+        uses: cjiis/sabaq-workflows/actions/setup-node@main
 
       - &install-dependencies
         run: npm ci
@@ -63,10 +62,10 @@ jobs:
         run: npm run firebase -- deploy --only hosting:app --project ${{env.SABAQ_ENV}} --token ${{secrets.FIREBASE_TOKEN}}
 
       - &setup-xcode
-        uses: ./.github/actions/setup-xcode
+        uses: cjiis/sabaq-workflows/actions/setup-xcode@main
 
       - &setup-java
-        uses: ./.github/actions/setup-java
+        uses: cjiis/sabaq-workflows/actions/setup-java@main
 
       - &build-mobile
         # env:
@@ -82,7 +81,7 @@ jobs:
         # env:
         #   ARTIFACT_PATH
         #   PLATFORM
-        uses: actions/upload-artifact@v7
+        uses: cjiis/sabaq-workflows/actions/upload-artifact@main
         with:
           name: ${{env.PLATFORM}}
           path: ${{env.ARTIFACT_PATH}}
@@ -90,7 +89,7 @@ jobs:
       - &download-artifact
         # env:
         #   PLATFORM
-        uses: actions/download-artifact@v8
+        uses: cjiis/sabaq-workflows/actions/download-artifact@main
         with:
           name: ${{env.PLATFORM}}
           path: *build-directory

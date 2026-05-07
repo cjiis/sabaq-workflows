@@ -1,0 +1,15 @@
+name: Upload Artifact
+description: Upload Artifact
+inputs:
+  path:
+    description: path
+    required: true
+  name:
+    description: name
+runs:
+  using: composite
+  steps:
+    - uses: actions/upload-artifact@v7
+      with:
+        path: ${{inputs.path}}
+        name: ${{inputs.name}}

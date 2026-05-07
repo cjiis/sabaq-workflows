@@ -1,0 +1,14 @@
+name: Download Artifact
+description: Download Artifact
+inputs:
+  path:
+    description: path
+  name:
+    description: name
+runs:
+  using: composite
+  steps:
+    - uses: actions/download-artifact@v8
+      with:
+        path: ${{inputs.path}}
+        name: ${{inputs.name}}
