@@ -11,5 +11,5 @@ runs:
     - uses: actions/checkout@v6
       with:
         repository: cjiis/sabaq
-        # token: ${{inputs.token}}
+        token: ${{inputs.token || github.token}}
         ref: ${{inputs.ref}}
