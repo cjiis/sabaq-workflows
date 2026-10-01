@@ -1,5 +1,5 @@
 name: Deploy UI
-run-name: Deploy UI (${{github.event_name == 'workflow_dispatch' && 'local' || github.event.client_payload.environment}}) (${{github.event_name == 'workflow_dispatch' && github.event.inputs.app-build-number || github.event.client_payload.ref}})
+run-name: Deploy UI (${{github.event_name == 'workflow_dispatch' && 'local' || github.event.client_payload.environment}}) (${{github.event_name == 'workflow_dispatch' && github.event.inputs.app-build-number || github.event.client_payload.ref}}) (droid)
 
 on:
   repository_dispatch:
@@ -102,28 +102,28 @@ jobs:
         env:
           EXPO_TOKEN: ${{secrets.EXPO_TOKEN}}
 
-  build-and-deploy-web:
-    if: ${{github.event_name == 'repository_dispatch'}}
-    runs-on: *ubuntu
-    steps:
-      - *checkout-sabaq
-      - *setup-node
-      - *install-dependencies
-      - *build-web
-      - *deploy-web
+  # build-and-deploy-web:
+  #   if: ${{github.event_name == 'repository_dispatch'}}
+  #   runs-on: *ubuntu
+  #   steps:
+  #     - *checkout-sabaq
+  #     - *setup-node
+  #     - *install-dependencies
+  #     - *build-web
+  #     - *deploy-web
 
-  build-ios:
-    runs-on: *macos
-    env:
-      ARTIFACT_PATH: *ios-build-path
-      PLATFORM: *ios-platform
-    steps:
-      - *checkout-sabaq
-      - *setup-xcode
-      - *setup-node
-      - *install-dependencies
-      - *build-mobile
-      - *upload-artifact
+  # build-ios:
+  #   runs-on: *macos
+  #   env:
+  #     ARTIFACT_PATH: *ios-build-path
+  #     PLATFORM: *ios-platform
+  #   steps:
+  #     - *checkout-sabaq
+  #     - *setup-xcode
+  #     - *setup-node
+  #     - *install-dependencies
+  #     - *build-mobile
+  #     - *upload-artifact
 
   build-android:
     runs-on: *ubuntu
@@ -138,18 +138,18 @@ jobs:
       - *build-mobile
       - *upload-artifact
 
-  deploy-ios:
-    needs: build-ios
-    runs-on: *ubuntu
-    env:
-      ARTIFACT_PATH: *ios-build-path
-      PLATFORM: *ios-platform
-    steps:
-      - *checkout-sabaq
-      - *setup-node
-      - *install-dependencies
-      - *download-artifact
-      - *deploy-mobile
+  # deploy-ios:
+  #   needs: build-ios
+  #   runs-on: *ubuntu
+  #   env:
+  #     ARTIFACT_PATH: *ios-build-path
+  #     PLATFORM: *ios-platform
+  #   steps:
+  #     - *checkout-sabaq
+  #     - *setup-node
+  #     - *install-dependencies
+  #     - *download-artifact
+  #     - *deploy-mobile
 
   deploy-android:
     if: ${{github.event_name == 'repository_dispatch'}}
