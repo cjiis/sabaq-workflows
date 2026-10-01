@@ -27,7 +27,7 @@ jobs:
   template:
     if: false
     runs-on:
-      - &ubuntu ubuntu-24.04
+      - &ubuntu ubuntu-26.04
       - &macos xcode-27
       - &ios-platform ios
       - &android-platform android
