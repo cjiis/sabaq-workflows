@@ -28,5 +28,5 @@ jobs:
       platform: ${{matrix.platform}}
       sabaq-env: local
       sabaq-ref: ${{inputs.sabaq-ref}}
-      app-build-number: ${{inputs.app-build-number}}
+      app-build-number: ${{fromJson(inputs.app-build-number)}}
       development-server-host: ${{inputs.development-server-host}}
