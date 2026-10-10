@@ -1,27 +1,29 @@
-name: Deploy UI
-run-name: Deploy UI (${{github.event_name == 'workflow_dispatch' && 'local' || github.event.client_payload.environment}}) (${{github.event_name == 'workflow_dispatch' && github.event.inputs.app-build-number || github.event.client_payload.ref}})
-
 on:
-  repository_dispatch:
-    types:
-      - deploy-ui
-
-  workflow_dispatch:
+  workflow_call:
     inputs:
+      platform:
+        type: string
+        description: Platform (web, ios, android)
+        required: true
+      sabaq-env:
+        type: string
+        description: Sabaq environment (local, dev, prod)
+        required: true
       sabaq-ref:
-        description: "Sabaq repo ref (branch, tag, etc.)"
+        type: string
+        description: Sabaq repo ref (branch, tag, commit, etc.)
         required: true
-        default: "master"
+
       app-build-number:
-        description: "App build number (e.g., 100)"
-        required: true
+        type: number
+        description: App build number (e.g., 100). Only required for local builds.
       development-server-host:
-        description: "Development server host (e.g., localhost, staging.example.com)"
-        required: false
+        type: string
+        description: Development server host (e.g., localhost, staging.example.com). Only required for local builds.
 
 env:
-  SABAQ_ENV: ${{github.event_name == 'workflow_dispatch' && 'local' || github.event.client_payload.environment}}
-  SABAQ_REF: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.sabaq-ref || github.event.client_payload.ref}}
+  SABAQ_ENV: ${{inputs.sabaq-env}}
+  MOBILE_BUILD_PATH: ${{inputs.platform == 'ios' && '/tmp/sabaq.ipa' || (inputs.platform == 'android' && (inputs.sabaq-env == 'local' && '/tmp/sabaq.apk' || '/tmp/sabaq.aab')) || ''}}
 
 jobs:
   template:
@@ -29,20 +31,12 @@ jobs:
     runs-on:
       - &ubuntu ubuntu-24.04
       - &macos xcode-27
-      - &ios-platform ios
-      - &android-platform android
-      - &build-directory /tmp
-      - &ios-build-path /tmp/sabaq.ipa
-      - &android-build-path ${{github.event_name == 'workflow_dispatch' && '/tmp/sabaq.apk' || '/tmp/sabaq.aab'}}
-    env:
-      ARTIFACT_PATH: ""
-      PLATFORM: ""
     steps:
       - &checkout-sabaq
         uses: cjiis/sabaq-workflows/actions/checkout-sabaq@main
         with:
           token: ${{secrets.GH_PAT}}
-          ref: ${{env.SABAQ_REF}}
+          ref: ${{inputs.sabaq-ref}}
 
       - &setup-node
         uses: cjiis/sabaq-workflows/actions/setup-node@main
@@ -54,12 +48,12 @@ jobs:
         run: npm run expo export -- --platform web
         env:
           EXPO_PUBLIC_DO_NOT_USE_FIREBASE_EMULATORS: "true"
-          EXPO_PUBLIC_TRPC_ENDPOINT: ${{env.SABAQ_ENV == 'prod' && 'https://apiv2-3yoyqfllna-uc.a.run.app/trpc' || 'https://apiv2-drlhhmghsa-uc.a.run.app/trpc'}}
-          EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{env.SABAQ_ENV == 'prod' && 'pk_live_51QBmL3Bi17HmM2BuKrxBF90aW2AjrN7fVukBRKpH5P7tEJUDjtUaj8kL3zWEXn2lnPnKbu5z8zAn1f5UmG4VJpWf00Gbz2quPA' || 'pk_test_51QBmL3Bi17HmM2BuzGCSGA4KVJxhqt8y9dPTij7tEauokrE4GA88cxpYIP65CwxlljIhqW8fm4Drq7Y3JYIGNML100njJBTv0z'}}
-          EXPO_PUBLIC_SABAQ_ENV: ${{env.SABAQ_ENV}}
+          EXPO_PUBLIC_TRPC_ENDPOINT: ${{inputs.sabaq-env == 'prod' && 'https://apiv2-3yoyqfllna-uc.a.run.app/trpc' || 'https://apiv2-drlhhmghsa-uc.a.run.app/trpc'}}
+          EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{inputs.sabaq-env == 'prod' && 'pk_live_51QBmL3Bi17HmM2BuKrxBF90aW2AjrN7fVukBRKpH5P7tEJUDjtUaj8kL3zWEXn2lnPnKbu5z8zAn1f5UmG4VJpWf00Gbz2quPA' || 'pk_test_51QBmL3Bi17HmM2BuzGCSGA4KVJxhqt8y9dPTij7tEauokrE4GA88cxpYIP65CwxlljIhqW8fm4Drq7Y3JYIGNML100njJBTv0z'}}
+          EXPO_PUBLIC_SABAQ_ENV: ${{inputs.sabaq-env}}
 
       - &deploy-web
-        run: npm run firebase -- deploy --only hosting:app --project ${{env.SABAQ_ENV}} --token ${{secrets.FIREBASE_TOKEN}}
+        run: npm run firebase -- deploy --only hosting:app --project ${{inputs.sabaq-env}} --token ${{secrets.FIREBASE_TOKEN}}
 
       - &setup-xcode
         uses: cjiis/sabaq-workflows/actions/setup-xcode@main
@@ -68,42 +62,31 @@ jobs:
         uses: cjiis/sabaq-workflows/actions/setup-java@main
 
       - &build-mobile
-        # env:
-        #   ARTIFACT_PATH
-        #   PLATFORM
-        run: npm run build -- --non-interactive --output ${{env.ARTIFACT_PATH}} --platform ${{env.PLATFORM}} --profile ${{env.SABAQ_ENV}}
+        run: npm run build -- --non-interactive --output ${{env.MOBILE_BUILD_PATH}} --platform ${{inputs.platform}} --profile ${{inputs.sabaq-env}}
         env:
           EXPO_TOKEN: ${{secrets.EXPO_TOKEN}}
-          APP_BUILD_NUMBER: ${{github.event.inputs.app-build-number}}
-          DEVELOPMENT_SERVER_HOST: ${{github.event.inputs.development-server-host}}
+          APP_BUILD_NUMBER: ${{inputs.app-build-number}}
+          DEVELOPMENT_SERVER_HOST: ${{inputs.development-server-host}}
 
       - &upload-artifact
-        # env:
-        #   ARTIFACT_PATH
-        #   PLATFORM
         uses: cjiis/sabaq-workflows/actions/upload-artifact@main
         with:
-          name: ${{env.PLATFORM}}
-          path: ${{env.ARTIFACT_PATH}}
+          name: ${{inputs.platform}}
+          path: ${{env.MOBILE_BUILD_PATH}}
 
       - &download-artifact
-        # env:
-        #   PLATFORM
         uses: cjiis/sabaq-workflows/actions/download-artifact@main
         with:
-          name: ${{env.PLATFORM}}
-          path: *build-directory
+          name: ${{inputs.platform}}
+          path: /tmp
 
       - &deploy-mobile
-        # env:
-        #   ARTIFACT_PATH
-        #   PLATFORM
-        run: npm run eas -- submit --non-interactive --path ${{env.ARTIFACT_PATH}} --platform ${{env.PLATFORM}} --profile ${{env.SABAQ_ENV}}
+        run: npm run eas -- submit --non-interactive --path ${{env.MOBILE_BUILD_PATH}} --platform ${{inputs.platform}} --profile ${{inputs.sabaq-env}}
         env:
           EXPO_TOKEN: ${{secrets.EXPO_TOKEN}}
 
   build-and-deploy-web:
-    if: ${{github.event_name == 'repository_dispatch'}}
+    if: ${{inputs.platform == 'web'}}
     runs-on: *ubuntu
     steps:
       - *checkout-sabaq
@@ -113,10 +96,8 @@ jobs:
       - *deploy-web
 
   build-ios:
+    if: ${{inputs.platform == 'ios'}}
     runs-on: *macos
-    env:
-      ARTIFACT_PATH: *ios-build-path
-      PLATFORM: *ios-platform
     steps:
       - *checkout-sabaq
       - *setup-xcode
@@ -125,11 +106,20 @@ jobs:
       - *build-mobile
       - *upload-artifact
 
-  build-android:
+  deploy-ios:
+    if: ${{inputs.platform == 'ios'}}
+    needs: build-ios
     runs-on: *ubuntu
-    env:
-      ARTIFACT_PATH: *android-build-path
-      PLATFORM: *android-platform
+    steps:
+      - *checkout-sabaq
+      - *setup-node
+      - *install-dependencies
+      - *download-artifact
+      - *deploy-mobile
+
+  build-android:
+    if: ${{inputs.platform == 'android'}}
+    runs-on: *ubuntu
     steps:
       - *checkout-sabaq
       - *setup-java
@@ -138,26 +128,10 @@ jobs:
       - *build-mobile
       - *upload-artifact
 
-  deploy-ios:
-    needs: build-ios
-    runs-on: *ubuntu
-    env:
-      ARTIFACT_PATH: *ios-build-path
-      PLATFORM: *ios-platform
-    steps:
-      - *checkout-sabaq
-      - *setup-node
-      - *install-dependencies
-      - *download-artifact
-      - *deploy-mobile
-
   deploy-android:
-    if: ${{github.event_name == 'repository_dispatch'}}
+    if: ${{inputs.platform == 'android' && inputs.sabaq-env != 'local'}}
     needs: build-android
     runs-on: *ubuntu
-    env:
-      ARTIFACT_PATH: *android-build-path
-      PLATFORM: *android-platform
     steps:
       - *checkout-sabaq
       - *setup-node

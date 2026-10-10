@@ -1,0 +1,31 @@
+name: Deploy Local Mobile UI
+run-name: Deploy Local Mobile UI (${{inputs.sabaq-ref}}) (${{inputs.app-build-number}}) (${{inputs.development-server-host}})
+
+on:
+  workflow_dispatch:
+    inputs:
+      sabaq-ref:
+        type: string
+        description: Sabaq repo ref (branch, tag, commit, etc.)
+        required: true
+      app-build-number:
+        type: number
+        description: App build number (e.g., 100)
+      development-server-host:
+        type: string
+        description: Development server host (e.g., localhost, staging.example.com)
+
+jobs:
+  deploy-local-mobile-ui:
+    strategy:
+      matrix:
+        platform:
+          - ios
+          - android
+    uses: ./.github/workflows/deploy-ui.yaml
+    with:
+      platform: ${{matrix.platform}}
+      sabaq-env: local
+      sabaq-ref: ${{inputs.sabaq-ref}}
+      app-build-number: ${{inputs.app-build-number}}
+      development-server-host: ${{inputs.development-server-host}}

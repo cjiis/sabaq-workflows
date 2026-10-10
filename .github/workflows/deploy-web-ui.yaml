@@ -1,0 +1,26 @@
+name: Deploy Web UI
+run-name: Deploy Web UI (${{inputs.sabaq-env}}) (${{inputs.sabaq-ref}})
+
+on:
+  workflow_dispatch:
+    inputs:
+      sabaq-env:
+        type: choice
+        description: Sabaq environment
+        required: true
+        default: dev
+        options:
+          - dev
+          - prod
+      sabaq-ref:
+        type: string
+        description: Sabaq repo ref (branch, tag, commit, etc.)
+        required: true
+
+jobs:
+  deploy-web-ui:
+    uses: ./.github/workflows/deploy-ui.yaml
+    with:
+      platform: web
+      sabaq-env: ${{inputs.sabaq-env}}
+      sabaq-ref: ${{inputs.sabaq-ref}}

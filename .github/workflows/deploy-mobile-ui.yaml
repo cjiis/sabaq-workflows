@@ -1,0 +1,20 @@
+name: Deploy Mobile UI
+run-name: Deploy Mobile UI (${{github.event.client_payload.environment}}) (${{github.event.client_payload.ref}})
+
+on:
+  repository_dispatch:
+    types:
+      - deploy-ui
+
+jobs:
+  deploy-mobile-ui:
+    strategy:
+      matrix:
+        platform:
+          - ios
+          - android
+    uses: ./.github/workflows/deploy-ui.yaml
+    with:
+      platform: ${{matrix.platform}}
+      sabaq-env: ${{github.event.client_payload.environment}}
+      sabaq-ref: ${{github.event.client_payload.ref}}
