@@ -20,6 +20,7 @@ on:
 jobs:
   deploy-web-ui:
     uses: ./.github/workflows/deploy-ui.yaml
+    secrets: inherit
     with:
       platform: web
       sabaq-env: ${{inputs.sabaq-env}}

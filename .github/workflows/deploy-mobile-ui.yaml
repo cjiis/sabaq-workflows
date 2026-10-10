@@ -14,6 +14,7 @@ jobs:
           - ios
           - android
     uses: ./.github/workflows/deploy-ui.yaml
+    secrets: inherit
     with:
       platform: ${{matrix.platform}}
       sabaq-env: ${{github.event.client_payload.environment}}
