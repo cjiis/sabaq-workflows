@@ -1,0 +1,37 @@
+name: Build Mobile App
+description: Build Mobile App
+inputs:
+  expo-token:
+    description: Expo token
+    required: true
+  sabaq-env:
+    description: Sabaq environment (local, dev, prod)
+    required: true
+  platform:
+    description: Mobile platform (ios, android)
+    required: true
+
+  app-build-number:
+    description: App build number (e.g., 100). Only required for local builds.
+  development-server-host:
+    description: Development server host (e.g., localhost, staging.example.com). Only required for local builds.
+
+outputs:
+  build-directory:
+    description: Directory containing the built mobile app
+    value: /tmp
+  build-path:
+    description: Path to the built mobile app (e.g., /tmp/sabaq.ipa, /tmp/sabaq.apk, /tmp/sabaq.aab)
+    value: &build-path ${{inputs.platform == 'ios' && '/tmp/sabaq.ipa' || (inputs.platform == 'android' && (inputs.sabaq-env == 'local' && '/tmp/sabaq.apk' || '/tmp/sabaq.aab')) || ''}}
+
+runs:
+  using: composite
+  steps:
+    - run: npm run build -- --non-interactive --output ${{env.BUILD_PATH}} --platform ${{inputs.platform}} --profile ${{inputs.sabaq-env}}
+      shell: bash
+      env:
+        BUILD_PATH: *build-path
+        SABAQ_ENV: ${{inputs.sabaq-env}}
+        EXPO_TOKEN: ${{inputs.expo-token}}
+        APP_BUILD_NUMBER: ${{inputs.app-build-number}}
+        DEVELOPMENT_SERVER_HOST: ${{inputs.development-server-host}}
