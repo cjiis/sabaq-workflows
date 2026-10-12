@@ -1,0 +1,22 @@
+name: Deploy Mobile App
+description: Deploy Mobile App
+inputs:
+  expo-token:
+    description: Expo token
+    required: true
+  sabaq-env:
+    description: Sabaq environment (local, dev, prod)
+    required: true
+  platform:
+    description: Mobile platform (ios, android)
+    required: true
+  build-path:
+    description: Path to the built mobile app (e.g., /tmp/sabaq.ipa, /tmp/sabaq.apk, /tmp/sabaq.aab)
+    required: true
+runs:
+  using: composite
+  steps:
+    - run: npm run eas -- submit --non-interactive --path ${{inputs.build-path}} --platform ${{inputs.platform}} --profile ${{inputs.sabaq-env}}
+      shell: bash
+      env:
+        EXPO_TOKEN: ${{inputs.expo-token}}
