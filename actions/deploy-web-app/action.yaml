@@ -1,0 +1,14 @@
+name: Deploy Web App
+description: Deploy Web App
+inputs:
+  sabaq-env:
+    description: Sabaq environment (dev, prod)
+    required: true
+  firebase-token:
+    description: Firebase token
+    required: true
+runs:
+  using: composite
+  steps:
+    - run: npm run firebase -- deploy --only hosting:app --project ${{inputs.sabaq-env}} --token ${{inputs.firebase-token}}
+      shell: bash
