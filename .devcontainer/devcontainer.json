@@ -1,6 +1,6 @@
 {
   "name": "Sabaq Workflows",
-  "image": "mcr.microsoft.com/devcontainers/base:noble",
+  "image": "mcr.microsoft.com/devcontainers/base:resolute",
   "customizations": {
     "vscode": {
       "extensions": [
